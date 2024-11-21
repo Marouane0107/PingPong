@@ -2,11 +2,23 @@ const canvas = document.getElementById('canvas1');
 const ctx = canvas.getContext('2d');
 console.log(ctx);
 
+const line = document.getElementById("line");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let startX = canvas.width/2;
-let startY = canvas.height/2;
+// Get the initial canvas size (assuming canvas is already created in HTML)
+const canvasWidth = canvas.width;
+const canvasHeight = canvas.height;
+
+// Define scaling factor based on the canvas width and height (adjust these values)
+const playerWidth = canvasWidth * 0.020;  // 2.5% of the canvas width
+const playerHeight = canvasHeight * 0.11; // 10% of the canvas height
+const ballRadius = canvasWidth * 0.01; // 2% of the canvas width
+// Starting Y position for players
+const startY = canvasHeight / 2 - playerHeight / 2; // Centered vertically
+const BstartY = canvas.height / 2;
 
 const keysPressed = [];
 const key_Up = 38;
@@ -31,22 +43,45 @@ function Ball(pos, radius, speed)
 	this.pos = pos;
 	this.radius = radius;
 	this.speed = speed;
+	const borderSegmentHeight = canvas.height / 6;
+	const borderWidth = 20;
 
 	this.update = function() {
 		if (this.pos.y + this.radius > canvas.height || this.pos.y - this.radius < 0) {
 			this.speed.y = -this.speed.y;
 		}
+		 // Bounce on the left border segments
+		 if (
+			this.pos.x - this.radius < borderWidth &&
+			(this.pos.y < borderSegmentHeight || this.pos.y > canvas.height - borderSegmentHeight)
+		) {
+			this.speed.x = -this.speed.x;
+		}
+	
+		// Bounce on the right border segments
+		if (
+			this.pos.x + this.radius > canvas.width - borderWidth &&
+			(this.pos.y < borderSegmentHeight || this.pos.y > canvas.height - borderSegmentHeight)
+		) {
+			this.speed.x = -this.speed.x;
+		}
 		this.pos.x += this.speed.x;
 		this.pos.y += this.speed.y;
 	};
 	this.draw = function() {
-		ctx.fillStyle = 'blue';
-		ctx.strokeStyle = 'blue';
+		ctx.fillStyle = 'white';
+		ctx.strokeStyle = 'white';
 		ctx.beginPath();
 		ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
 		ctx.fill();
 		ctx.stroke();
 	};
+}
+function growLine() {
+
+// line.classList.remove("grow");
+// void line.offsetWidth;
+line.classList.add("grow"); // Add the class to start the animation
 }
 
 function resetBall(ball)
@@ -55,15 +90,23 @@ function resetBall(ball)
 	{
 		ball.pos.x = canvas.width/2;
 		ball.pos.y = (Math.random() * (canvas.height - 200)) + 100;
+		ball.speed.x = 5;
+		ball.speed.y = 5;
 	}
 	if (ball.speed.x > 0)
 	{
 		ball.pos.x = canvas.width/2;
 		ball.pos.y = (Math.random() * (canvas.height - 200)) + 100;
+		ball.speed.x = 5;
+		ball.speed.y = 5;
+		line.classList.remove("grow");
+		void line.offsetWidth;
 	}
 	ball.speed.x = -ball.speed.x;
 	ball.speed.y = -ball.speed.y; 
 }
+
+
 
 function Score(ball, player1, player2)
 {
@@ -82,16 +125,6 @@ function Score(ball, player1, player2)
 	}
 }
 
-// function hitedPlayer(player, ball) {
-// 	if (ball.pos.x < player.pos.x + player.width && 
-// 		ball.pos.x > player.pos.x &&
-// 		ball.pos.y < player.pos.y + player.height &&
-// 		ball.pos.y > player.pos.y) {
-// 		return true;
-// 	}
-// 	return false;
-// }
-
 function Player(pos, width, height, speed)
 {
 	this.pos = pos;
@@ -101,18 +134,23 @@ function Player(pos, width, height, speed)
 	this.score = 0;
 
 	this.update = function() {
-		if (keysPressed[key_Up] && this.pos.y > 0) {
+		if (keysPressed[key_Up] && this.pos.y > canvas.height / 7) {
 			this.pos.y -= this.speed;
 		}
-		if (keysPressed[key_Down] && this.pos.y < canvas.height - this.height) {
+		if (keysPressed[key_Down] && this.pos.y < (canvas.height - canvas.height / 7) - this.height) {
 			this.pos.y += this.speed;
 		}
 	}
 
 	this.draw = function() {
+		ctx.fillStyle = 'yellow';
+		ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height, this.speed);
+		
+	};
+	this.draw2 = function() {
 		ctx.fillStyle = 'blue';
 		ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height, this.speed);
-	};
+	}
 
 	this.getHalfWidth = function() {
 		return this.width / 2;
@@ -131,8 +169,18 @@ function playerCollision(ball, player1)
 	let dx = Math.abs(ball.pos.x - player1.getcenter().x);
 	let dy = Math.abs(ball.pos.y - player1.getcenter().y);
 
-	if (dx <= (ball.radius + player1.getHalfWidth()) && dy <= (ball.radius + player1.getHalfHeight())) {
-		ball.speed.x = -ball.speed.x;
+	if (dx < (ball.radius + player1.getHalfWidth()) && dy < (ball.radius + player1.getHalfHeight())) {
+		ball.speed.x *= -1;
+		ball.speed.x += 0.5;
+		ball.speed.y += 0.5;
+		growLine();
+	}
+	if (ball.speed.x >= 20 || ball.speed.y >= 20)
+	{
+		ball.speed.x = 5;
+		ball.speed.y = 5;
+		line.classList.remove("grow");
+		void line.offsetWidth;
 	}
 }
 
@@ -142,71 +190,86 @@ function Player2IA(ball, player)
 		if (ball.pos.y > player.pos.y)
 		{
 			player.pos.y += player.speed;
-			if (ball.pos.y + player.height >= canvas.height)
-				player.pos.y = canvas.height - player.height;
+			if (ball.pos.y + player.height >= canvas.height - canvas.height / 7)
+				player.pos.y = (canvas.height - (canvas.height / 7)) - player.height;
 		}
 		if (ball.pos.y < player.pos.y)
 		{
 			player.pos.y -= player.speed;
-			if (player.pos.y <= 0)
-				player.pos.y = 0;
+			if (player.pos.y <= canvas.height / 7)
+				player.pos.y = canvas.height / 7;
 		}
 	}
 }
 
 function drawfield()
 {
-	ctx.strokeStyle = 'red';
+	ctx.strokeStyle = 'white';
 
 	ctx.beginPath();
-	ctx.lineWidth = 10;
+	ctx.lineWidth = 20;
 	ctx.moveTo(0, 0);
-	ctx.lineTo(canvas.width, 0);
+	ctx.lineTo(0 , canvas.height / 6);
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.lineWidth = 20;
+	ctx.moveTo(0, canvas.height);
+	ctx.lineTo(0, canvas.height - canvas.height / 6);
 	ctx.stroke();
 
 	ctx.beginPath();
-	ctx.lineWidth = 10;
-	ctx.lineTo(canvas.width, canvas.height);
-	ctx.lineTo(0 , canvas.height);
-	ctx.stroke();
-
-	ctx.beginPath();
-	ctx.lineWidth = 10;
-	ctx.moveTo(canvas.width / 2, 0);
-	ctx.lineTo(canvas.width / 2, canvas.height);
-	ctx.strokeStyle = 'red';
-	ctx.stroke();
-
-	ctx.beginPath();
-	ctx.lineWidth = 10;
-	ctx.moveTo(0, 0);
-	ctx.lineTo(0, canvas.height);
-	ctx.strokeStyle = 'red';
-	ctx.stroke();
-
-	ctx.beginPath();
-	ctx.lineWidth = 10;
+	ctx.lineWidth = 20;
 	ctx.moveTo(canvas.width, 0);
-	ctx.lineTo(canvas.width, canvas.height);
-	ctx.strokeStyle = 'red';
+	ctx.lineTo(canvas.width , canvas.height / 6);
 	ctx.stroke();
-	
 	ctx.beginPath();
-	ctx.arc(canvas.width / 2, canvas.height / 2, 50, 0, Math.PI * 2);
+	ctx.lineWidth = 20;
+	ctx.moveTo(canvas.width, canvas.height);
+	ctx.lineTo(canvas.width, canvas.height - canvas.height / 6);
+	ctx.stroke();
+
+	ctx.beginPath();
+	ctx.lineWidth = 5;
+	ctx.setLineDash([60, 40]);
+	ctx.moveTo(canvas.width / 2, 15);
+	ctx.lineTo(canvas.width / 2, canvas.height - 15);
 	ctx.strokeStyle = 'red';
 	ctx.stroke();
+	ctx.setLineDash([]);
 }
 
-const player1 = new Player(vector(0, startY), 20, 100, 15);
-const player2 = new Player(vector(canvas.width - 20, startY), 20, 100, 15);
-const ball = new Ball(vector(startX , startY), 10, vector(5, 5));
+
+let ball = new Ball(vector(startX, BstartY), ballRadius, vector(5, 5));
+let player1 = new Player(vector(40, startY), playerWidth, playerHeight, 15);
+let player2 = new Player(vector(canvas.width - playerWidth - 40, startY), playerWidth, playerHeight, 15);
+
+// window.addEventListener('resize', function() {
+// 	// Update canvas size dynamically
+// 	canvas.width = window.innerWidth * 0.8;  // Adjust width as needed
+// 	canvas.height = window.innerHeight * 0.8; // Adjust height as needed
+
+// 	// Recalculate the ball's radius and position
+// 	const ballRadius = canvas.width * 0.02; // Recalculate radius as 2% of new canvas width
+// 	const startX = canvas.width / 2;         // Center the ball horizontally
+// 	const BstartY = canvas.height / 2;        // Center the ball vertically
+
+// 	// Recalculate player size and position
+// 	const playerWidth = canvas.width * 0.025;
+// 	const playerHeight = canvas.height * 0.1;
+// 	const startY = canvas.height / 2 - playerHeight / 2;
+
+// 	// Update ball and players
+// 	ball = new Ball(vector(startX, BstartY), ballRadius, vector(5, 5));
+// 	player1 = new Player(vector(0, startY), playerWidth, playerHeight, 15);
+// 	player2 = new Player(vector(canvas.width - playerWidth, startY), playerWidth, playerHeight, 15);
+// });
+
 
 function update() 
 {	
 	ball.update();
 	player1.update();
 	playerCollision(ball, player1);
-	
 	Player2IA(ball, player2);
 	playerCollision(ball, player2);
 	Score(ball, player1, player2);
@@ -217,12 +280,13 @@ function drawgame()
 	drawfield();
 	ball.draw();
 	player1.draw();
-	player2.draw();
+	player2.draw2();
 }
 
 function loop() {
-	// ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	window.requestAnimationFrame(loop);
 	

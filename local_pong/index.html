@@ -1,17 +1,35 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
 <head>
-	<meta charset="UFT-8">
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title> PING PONG </title>
+	<title>Ping Pong</title>
 	<link rel="stylesheet" href="index.css">
 </head>
 <body>
-	<canvas id = "canvas1"></canvas>
-	<h1 id = "Name1">Player_1 : </h1>
-	<h1 id = "Player_1">0</h1>
-	<h1 id = "Name2">Player_2 : </h1>
-	<h1 id = "Player_2">0</h1>
+	<div id="gameContainer">
+		<div id="head">
+			<h1 id="title">Ping Pong</h1>
+			<div id="topFrame">
+				<div id="player1">
+					<h1 id="Name1">Player_1:</h1>
+					<h1 id="Player_1">0</h1>
+				</div>
+				<div id="player2">
+					<h1 id="Name2">Player_2:</h1>
+					<h1 id="Player_2">0</h1>
+				</div>
+			</div>
+		</div>
+		<canvas id="canvas1" width="800" height="600"></canvas>
+		<div id="tail">
+			<h1>Ball Speed-Up</h1>
+			<div id = "line"></div>
+			<button id="Menu"> Menu </button>
+			<button id="Restart"> Restart </button>
+			<button id="Quit"> Quit </button>
+		</div>
+	</div>
 	<script src="pingpong.js"></script>
 </body>
 </html>
