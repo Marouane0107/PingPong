@@ -2,7 +2,16 @@ const canvas = document.getElementById('canvas1');
 const ctx = canvas.getContext('2d');
 console.log(ctx);
 
-const line = document.getElementById("line");
+const landingPage = document.getElementById('landingPage');
+const startGameButton = document.getElementById('startGameButton');
+const Restart = document.getElementById("Restart");
+const Quit = document.getElementById("Quit");
+const Menu = document.getElementById("Menu");
+const QuitMenu = document.getElementById("QuitMenu");
+
+let gameStarted = false
+
+// const line = document.getElementById("line");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -14,7 +23,7 @@ const canvasHeight = canvas.height;
 
 // Define scaling factor based on the canvas width and height (adjust these values)
 const playerWidth = canvasWidth * 0.020;  // 2.5% of the canvas width
-const playerHeight = canvasHeight * 0.11; // 10% of the canvas height
+const playerHeight = canvasHeight * 0.15; // 15% of the canvas height
 const ballRadius = canvasWidth * 0.01; // 2% of the canvas width
 // Starting Y position for players
 const startY = canvasHeight / 2 - playerHeight / 2; // Centered vertically
@@ -24,6 +33,8 @@ const keysPressed = [];
 const key_Up = 38;
 const key_Down = 40;
 
+const baseSpeedX = canvas.width * 0.01;
+const baseSpeedY = canvas.height * 0.01;
 
 window.addEventListener('keydown', function(e) {
 	keysPressed[e.keyCode] = true;
@@ -38,91 +49,141 @@ function vector(x, y)
 	return { x: x, y: y };
 }
 
-function Ball(pos, radius, speed)
-{
-	this.pos = pos;
-	this.radius = radius;
-	this.speed = speed;
-	const borderSegmentHeight = canvas.height / 6;
-	const borderWidth = 20;
 
-	this.update = function() {
-		if (this.pos.y + this.radius > canvas.height || this.pos.y - this.radius < 0) {
-			this.speed.y = -this.speed.y;
-		}
-		 // Bounce on the left border segments
-		 if (
-			this.pos.x - this.radius < borderWidth &&
-			(this.pos.y < borderSegmentHeight || this.pos.y > canvas.height - borderSegmentHeight)
-		) {
-			this.speed.x = -this.speed.x;
-		}
-	
-		// Bounce on the right border segments
-		if (
-			this.pos.x + this.radius > canvas.width - borderWidth &&
-			(this.pos.y < borderSegmentHeight || this.pos.y > canvas.height - borderSegmentHeight)
-		) {
-			this.speed.x = -this.speed.x;
-		}
-		this.pos.x += this.speed.x;
-		this.pos.y += this.speed.y;
-	};
-	this.draw = function() {
-		ctx.fillStyle = 'white';
-		ctx.strokeStyle = 'white';
-		ctx.beginPath();
-		ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
-		ctx.fill();
-		ctx.stroke();
-	};
-}
-function growLine() {
-
-// line.classList.remove("grow");
-// void line.offsetWidth;
-line.classList.add("grow"); // Add the class to start the animation
-}
-
-function resetBall(ball)
-{
-	if (ball.speed.x < 0)
-	{
-		ball.pos.x = canvas.width/2;
-		ball.pos.y = (Math.random() * (canvas.height - 200)) + 100;
-		ball.speed.x = 5;
-		ball.speed.y = 5;
-	}
-	if (ball.speed.x > 0)
-	{
-		ball.pos.x = canvas.width/2;
-		ball.pos.y = (Math.random() * (canvas.height - 200)) + 100;
-		ball.speed.x = 5;
-		ball.speed.y = 5;
-		line.classList.remove("grow");
-		void line.offsetWidth;
-	}
-	ball.speed.x = -ball.speed.x;
-	ball.speed.y = -ball.speed.y; 
-}
-
-
-
-function Score(ball, player1, player2)
-{
-	if (ball.pos.x <= -ball.radius)
-	{
-		player1.score += 1;
-		document.getElementById("Player_2").innerHTML = player1.score;
+document.querySelectorAll("button").forEach(button => {
+	QuitMenu.addEventListener('click', () => {
+		window.close();
+	});
+	startGameButton.addEventListener('click', () => {
+		landingPage.style.display = 'none'; // Hide landing page
+		gameContainer.style.display = 'flex'; // Show game container
+		gameStarted = true;
+	});
+	Restart.addEventListener("click", () => {
 		resetBall(ball);
-	}
+		player1.score = 0;
+		player2.score = 0;
+		document.getElementById("Player_1").innerHTML = player1.score;
+		document.getElementById("Player_2").innerHTML = player2.score;
+    });
+	Quit.addEventListener("click", () => {
+		window.close();
+	});
+	Menu.addEventListener("click", () => {
+		Restart.click();
+		landingPage.style.display = 'flex'; // Show landing page
+		gameContainer.style.display = 'none'; // Hide game container
+		gameStarted = false;
+	});
+});
 
-	if (ball.pos.x >= canvas.width + ball.radius)
-	{
-		player2.score += 1;
-		document.getElementById("Player_1").innerHTML = player2.score;
-		resetBall(ball);
-	}
+function Ball(pos, radius, speed) {
+    this.pos = pos;
+    this.radius = radius;
+    this.speed = speed;
+
+    const borderSegmentHeight = canvas.height / 7;
+    const borderWidth = 20;
+
+    // Normalize speed based on canvas size
+    const BASE_SPEED_RATIO = 0.01; // Speed is 10% of the canvas width/height
+    this.normalizeSpeed = function () {
+        const baseSpeed = canvas.width * BASE_SPEED_RATIO;
+        this.speed.x = (this.speed.x < 0 ? -1 : 1) * baseSpeed;
+        this.speed.y = (this.speed.y < 0 ? -1 : 1) * baseSpeed;
+    };
+
+    this.update = function () {
+        // Bounce on top and bottom
+        if (this.pos.y + this.radius > canvas.height || this.pos.y - this.radius < 0) {
+            this.speed.y = -this.speed.y;
+        }
+
+        // Bounce on the left border segments
+        if (
+            this.pos.x - this.radius < borderWidth &&
+            (this.pos.y < borderSegmentHeight || this.pos.y > canvas.height - borderSegmentHeight)
+        ) {
+            this.speed.x = -this.speed.x;
+        }
+
+        // Bounce on the right border segments
+        if (
+            this.pos.x + this.radius > canvas.width - borderWidth &&
+            (this.pos.y < borderSegmentHeight || this.pos.y > canvas.height - borderSegmentHeight)
+        ) {
+            this.speed.x = -this.speed.x;
+        }
+
+        this.pos.x += this.speed.x;
+        this.pos.y += this.speed.y;
+    };
+
+    this.draw = function () {
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+    };
+
+    // Initialize normalized speed
+    this.normalizeSpeed();
+}
+
+// Handle resizing to adjust ball speed
+window.addEventListener("resize", () => {
+    ball.normalizeSpeed();
+});
+
+function resetBall(ball) {
+    const StartSpeed = 5;  // Reduce this to slow down the ball on start
+    const randomDirection = Math.random() < 0.5 ? -1 : 1;
+
+    // Reset the ball position to center
+    ball.pos.x = canvas.width / 2;
+    ball.pos.y = (Math.random() * (canvas.height - 200)) + 100;
+
+    // Set initial speed for both axes
+    ball.speed.x = StartSpeed * randomDirection;
+    ball.speed.y = StartSpeed * (Math.random() < 0.5 ? -1 : 1);
+
+    console.log("Ball reset with speed:", ball.speed.x, ball.speed.y);
+}
+
+
+function Score(ball, player1, player2) {
+
+    if (player1.score === 10) {
+        alert("Player 1 wins!");
+        player1.score = 0;
+        player2.score = 0;
+        document.getElementById("Player_1").innerHTML = player1.score;
+        document.getElementById("Player_2").innerHTML = player2.score;
+        return; 
+    }
+
+    if (player2.score === 10) {
+        alert("Player 2 wins!");
+        player1.score = 0;
+        player2.score = 0;
+        document.getElementById("Player_1").innerHTML = player1.score;
+        document.getElementById("Player_2").innerHTML = player2.score;
+        return;
+    }
+
+    if (ball.pos.x <= -ball.radius) {
+        player2.score += 1;
+        document.getElementById("Player_2").innerHTML = player2.score;
+        resetBall(ball);
+    }
+
+    if (ball.pos.x >= canvas.width + ball.radius) {
+        player1.score += 1;
+        document.getElementById("Player_1").innerHTML = player1.score;
+        resetBall(ball);
+    }
 }
 
 function Player(pos, width, height, speed)
@@ -143,7 +204,7 @@ function Player(pos, width, height, speed)
 	}
 
 	this.draw = function() {
-		ctx.fillStyle = 'yellow';
+		ctx.fillStyle = 'green';
 		ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height, this.speed);
 		
 	};
@@ -166,22 +227,24 @@ function Player(pos, width, height, speed)
 
 function playerCollision(ball, player1)
 {
-	let dx = Math.abs(ball.pos.x - player1.getcenter().x);
-	let dy = Math.abs(ball.pos.y - player1.getcenter().y);
+    let dx = Math.abs(ball.pos.x - player1.getcenter().x);
+    let dy = Math.abs(ball.pos.y - player1.getcenter().y);
 
-	if (dx < (ball.radius + player1.getHalfWidth()) && dy < (ball.radius + player1.getHalfHeight())) {
-		ball.speed.x *= -1;
-		ball.speed.x += 0.5;
-		ball.speed.y += 0.5;
-		growLine();
-	}
-	if (ball.speed.x >= 20 || ball.speed.y >= 20)
-	{
-		ball.speed.x = 5;
-		ball.speed.y = 5;
-		line.classList.remove("grow");
-		void line.offsetWidth;
-	}
+    if (dx < (ball.radius + player1.getHalfWidth()) && dy < (ball.radius + player1.getHalfHeight())) {
+        ball.speed.x *= -1;
+
+        // Increase speed gradually, preserving the direction
+        if (Math.abs(ball.speed.x) < 20) {
+            ball.speed.x += (ball.speed.x > 0 ? 0.5 : -0.5);
+        }
+        if (Math.abs(ball.speed.y) < 20) {
+            ball.speed.y += (ball.speed.y > 0 ? 0.5 : -0.5);
+        }
+
+        // Optional: Add a slight vertical deflection based on where the ball hits the paddle
+        const hitPosition = (ball.pos.y - player1.getcenter().y) / player1.getHalfHeight();
+        ball.speed.y += hitPosition * 2; // Adjust 2 as needed for effect
+    }
 }
 
 function Player2IA(ball, player)
@@ -240,33 +303,33 @@ function drawfield()
 
 
 let ball = new Ball(vector(startX, BstartY), ballRadius, vector(5, 5));
-let player1 = new Player(vector(40, startY), playerWidth, playerHeight, 15);
-let player2 = new Player(vector(canvas.width - playerWidth - 40, startY), playerWidth, playerHeight, 15);
+let player1 = new Player(vector((canvas.width / 14 ), startY), playerWidth, playerHeight, 15);
+let player2 = new Player(vector(canvas.width - (canvas.width / 14 ), startY), playerWidth, playerHeight, 15);
 
-// window.addEventListener('resize', function() {
-// 	// Update canvas size dynamically
-// 	canvas.width = window.innerWidth * 0.8;  // Adjust width as needed
-// 	canvas.height = window.innerHeight * 0.8; // Adjust height as needed
+window.addEventListener('resize', function() {
+	// Update canvas size dynamically
+	canvas.width = window.innerWidth * 0.8;  // Adjust width as needed
+	canvas.height = window.innerHeight * 0.8; // Adjust height as needed
 
-// 	// Recalculate the ball's radius and position
-// 	const ballRadius = canvas.width * 0.02; // Recalculate radius as 2% of new canvas width
-// 	const startX = canvas.width / 2;         // Center the ball horizontally
-// 	const BstartY = canvas.height / 2;        // Center the ball vertically
+	// Recalculate the ball's radius and position
+	const ballRadius = canvas.width * 0.02; // Recalculate radius as 2% of new canvas width
+	const startX = canvas.width / 2;         // Center the ball horizontally
+	const BstartY = canvas.height / 2;        // Center the ball vertically
 
-// 	// Recalculate player size and position
-// 	const playerWidth = canvas.width * 0.025;
-// 	const playerHeight = canvas.height * 0.1;
-// 	const startY = canvas.height / 2 - playerHeight / 2;
+	// Recalculate player size and position
+	const playerWidth = canvas.width * 0.025;
+	const playerHeight = canvas.height * 0.1;
+	const startY = canvas.height / 2 - playerHeight / 2;
 
-// 	// Update ball and players
-// 	ball = new Ball(vector(startX, BstartY), ballRadius, vector(5, 5));
-// 	player1 = new Player(vector(0, startY), playerWidth, playerHeight, 15);
-// 	player2 = new Player(vector(canvas.width - playerWidth, startY), playerWidth, playerHeight, 15);
-// });
+	// Update ball and players
+	ball = new Ball(vector(startX, BstartY), ballRadius, vector(5, 5));
+	player1 = new Player(vector(0, startY), playerWidth, playerHeight, 15);
+	player2 = new Player(vector(canvas.width - playerWidth, startY), playerWidth, playerHeight, 15);
+});
 
 
 function update() 
-{	
+{
 	ball.update();
 	player1.update();
 	playerCollision(ball, player1);
@@ -289,6 +352,7 @@ function loop() {
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	window.requestAnimationFrame(loop);
+	if (!gameStarted) return
 	
 	update();
 	drawgame();

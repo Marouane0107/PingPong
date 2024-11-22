@@ -15,6 +15,87 @@ body {
     height: 100vh; /* Full viewport height */
 }
 
+/* landing page */
+#landingPage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 700px;
+    height: 600px;
+    border: white 20px solid;
+    border: white 20px solid;
+    border-top: 30px solid;
+    border-bottom: 30px solid;
+    background-color: rgb(0, 0, 0);
+    color: white;
+}
+
+/* title */
+#title1 {
+    font-family: sans-serif;
+    color: yellow;
+    font-size: 3rem;  /* Increased font size */
+    margin-bottom: 40px;
+    margin-top: 100px;
+}
+
+#title {
+    font-family: sans-serif;
+    color: black;
+    font-size: 2.5rem;  /* Increased font size */
+}
+
+#date {
+    font-family: Arial, sans-serif;
+    color: red;
+    font-size: 5rem;  /* Increased font size */
+}
+
+#Welcome
+{
+    font-family: Arial, sans-serif;
+    color: white;
+    font-size: 1.4rem;  /* Increased font size */
+    margin-bottom: 50px;
+    color: rgb(0, 255, 229);
+}
+
+/* Button to start the game */
+#startGameButton {
+    background-color: #14ccff;
+    color: #000;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 50px;
+}
+
+#startGameButton:hover {
+    background-color: #21a1f1;
+}
+
+#QuitMenu{
+    background-color: #14ccff;
+    color: #000;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 85%;
+}
+
+#QuitMenu:hover {
+    background-color: red;
+}
+
 /* Title and Header Section */
 #head {
     display: flex;
@@ -25,13 +106,12 @@ body {
 
 /* Game Container */
 #gameContainer {
-    width: 800px; 
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    width: 800px;
     height: 600px;
-    display: flex;
-    flex-direction: column; 
-    border: 5px solid rgb(255, 255, 255);
-    background-color: #f9f9f9;
     position: relative;
+    background-color: #f9f9f9;
 }
 
 
@@ -100,8 +180,13 @@ h1 {
 }
 
 /* Player names */
-#Name1, #Name2 {
-    color: #000000;
+#Name1{
+    color: green;
+    font-size: 1.2rem;
+}
+
+#Name2 {
+    color: blue;
     font-size: 1.2rem;
 }
 
@@ -119,23 +204,10 @@ h1 {
     display: block;
 }
 
-#line {
+/* #line {
 
     position: relative;
     height: 5px;
-    width: 0; /* Start with 0 width */
+    width: 0;
     background-color: yellow;
-}
-
-.grow {
-    animation: grow 3s linear forwards; /* Trigger animation when this class is added */
-}
-
-@keyframes grow {
-    from {
-        width: 0%;
-    }
-    to {
-        width: 50px;
-    }
-}
+} */
