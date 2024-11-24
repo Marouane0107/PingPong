@@ -159,7 +159,6 @@ body {
 	background-color: #ffffff;
 	color: rgb(0, 0, 0);
 	height: 50px; /* Adjust height of top frame */
-	border-bottom: 2px solid #ccc;
 }
 
 #tail {
@@ -249,10 +248,12 @@ h1 {
 
 /* Canvas */
 #canvas1 {
-	width: 100%; /* Full width of the container */
-	height: calc(100% - 100px); /* Fill the remaining space below the top frame */
-	background-color: #ffffff; /* Black background for the game canvas */
 	display: block;
+	/* Full width of the container */
+	width: 100%; 
+	/* Fill the remaining space below the top frame */
+	height: calc(100% - 100px);  
+	background-color: #ffffff; /* Black background for the game canvas */
 }
 
 /* #line {
