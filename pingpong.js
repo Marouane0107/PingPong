@@ -113,6 +113,10 @@ document.querySelectorAll("button").forEach(button => {
 		Restart.click();
 		landingPage.style.display = 'flex'; // Show landing page
 		gameContainer.style.display = 'none'; // Hide game container
+		document.getElementById("Player_3").style.display = 'none';
+		document.getElementById("Player_4").style.display = 'none';
+		document.getElementById("Name3").style.display = 'none';
+		document.getElementById("Name4").style.display = 'none';
 		gameStarted = false;
 		playerVSplayer = false;
 		playerVSbot = false;
@@ -128,13 +132,7 @@ function Ball(pos, radius, speed) {
     let borderSegmentHeight = canvas.height / 7;
     const borderWidth = 20;
 
-    // Normalize speed based on canvas size
     const BASE_SPEED_RATIO = 0.01; // Speed is 10% of the canvas width/height
-    // this.normalizeSpeed = function () {
-    //     const baseSpeed = canvas.width * BASE_SPEED_RATIO;
-    //     this.speed.x = (this.speed.x < 0 ? -1 : 1) * baseSpeed;
-    //     this.speed.y = (this.speed.y < 0 ? -1 : 1) * baseSpeed;
-    // };
 
     this.update = function () {
         // Bounce on top and bottom
@@ -162,9 +160,9 @@ function Ball(pos, radius, speed) {
         this.pos.y += this.speed.y;
     };
 	this.update2 = function () {
-		const borderSegmentHeight = canvas.height / 3;
-		const borderSegmentWidth = canvas.width / 3;
-		const borderWidth = 10; // Assuming a fixed border width
+		const borderSegmentHeight = canvas.height / 4;
+		const borderSegmentWidth = canvas.width / 4;
+		const borderWidth = 20; // Assuming a fixed border width
 	
 		// Bounce on the left border segments
 		if (
@@ -215,14 +213,7 @@ function Ball(pos, radius, speed) {
         ctx.stroke();
     };
 
-    // Initialize normalized speed
-    // this.normalizeSpeed();
 }
-
-// Handle resizing to adjust ball speed
-// window.addEventListener("resize", () => {
-//     ball.normalizeSpeed();
-// });
 
 function resetBall(ball) {
     const StartSpeed = baseSpeedX;  // Reduce this to slow down the ball on start
@@ -321,7 +312,7 @@ function Score2(ball, player1, player2, player3, player4)
 		player3.score = 0;
 		player4.score = 0;
 		document.getElementById("Player_1").innerHTML = player1.score;
-		document.getElementById("Player_2").innerHTML = player2.score;
+		document.getElementById("Player_2").innerHTML = player2.scor
 		document.getElementById("Player_3").innerHTML = player3.score;
 		document.getElementById("Player_4").innerHTML = player4.score;
 		return;
@@ -329,25 +320,25 @@ function Score2(ball, player1, player2, player3, player4)
 	if (ball.pos.y <= -ball.radius || ball.pos.y >= canvas.height + ball.radius || ball.pos.x <= -ball.radius || ball.pos.x >= canvas.width + ball.radius)
 	{
 		console.log(lastHit);
-
-		if (lastHit === "Player_2") {
-			player2.score += 1;
-			document.getElementById("Player_2").innerHTML = player2.score;
-			resetBall(ball);
-		}
-		if (lastHit === "Player_1") {
+		
+		if (lastHit === "Player_1" && !(ball.pos.x <= -ball.radius)) {
 			player1.score += 1;
 			document.getElementById("Player_1").innerHTML = player1.score;
 			resetBall(ball);
 		}
-		if (lastHit === "Player_4") {
-			player4.score += 1;
-			document.getElementById("Player_4").innerHTML = player4.score;
-			resetBall(ball);
-		}
-		if (lastHit === "Player_3") {
+		if (lastHit === "Player_3" && !(ball.pos.y <= -ball.radius)) {
 			player3.score += 1;
 			document.getElementById("Player_3").innerHTML = player3.score;
+			resetBall(ball);
+		}
+		if (lastHit === "Player_2" && !(ball.pos.x >= canvas.width + ball.radius)) {
+			player2.score += 1;
+			document.getElementById("Player_2").innerHTML = player2.score;
+			resetBall(ball);
+		}
+		if (lastHit === "Player_4" && !(ball.pos.y >= canvas.height + ball.radius)) {
+			player4.score += 1;
+			document.getElementById("Player_4").innerHTML = player4.score;
 			resetBall(ball);
 		}
 		if (lastHit === null) {
@@ -381,34 +372,34 @@ function Player(pos, width, height, speed)
 		}
 	};
 	this.update_2 = function() {
-		if (keysPressed[key_Up] && this.pos.y > canvas.height / 3) {
+		if (keysPressed[key_Up] && this.pos.y > canvas.height / 10) {
 			this.pos.y -= this.speed;
 		}
-		if (keysPressed[key_Down] && this.pos.y < (canvas.height - canvas.height / 3) - this.height) {
+		if (keysPressed[key_Down] && this.pos.y < (canvas.height - canvas.height / 10) - this.height) {
 			this.pos.y += this.speed;
 		}
 	};
 	this.update_1 = function() {
-		if (keysPressed[key_W] && this.pos.y > canvas.height / 3) {
+		if (keysPressed[key_W] && this.pos.y > canvas.height / 10) {
 	  		this.pos.y -= this.speed;
 		}
-		if (keysPressed[key_S] && this.pos.y < (canvas.height - canvas.height / 3) - this.height) {
+		if (keysPressed[key_S] && this.pos.y < (canvas.height - canvas.height / 10) - this.height) {
 			this.pos.y += this.speed;
 		}
 	};
 	this.update_3 = function() {
-		if (keysPressed[key_G] && this.pos.x > canvas.width / 3) {
+		if (keysPressed[key_G] && this.pos.x > canvas.width / 10) {
 		this.pos.x -= this.speed;
 		}
-		if (keysPressed[key_H] && this.pos.x < (canvas.width - canvas.width / 3) - this.width) {
+		if (keysPressed[key_H] && this.pos.x < (canvas.width - canvas.width / 10) - this.width) {
 		this.pos.x += this.speed;
 		}
 	};
 	this.update_4 = function() {
-		if (keysPressed[key_7] && this.pos.x > canvas.width / 3) {
+		if (keysPressed[key_7] && this.pos.x > canvas.width / 10) {
 			this.pos.x -= this.speed;
  		 }
-		if (keysPressed[key_9] && this.pos.x < (canvas.width - canvas.width / 3) - this.width) {
+		if (keysPressed[key_9] && this.pos.x < (canvas.width - canvas.width / 10) - this.width) {
 			this.pos.x += this.speed;
 		}
 	};
@@ -461,35 +452,56 @@ function Player2IA(ball, player)
 	}
 }
 
-function playerCollision(ball, player1, name)
-{
-    let dx = Math.abs(ball.pos.x - player1.getcenter().x);
-    let dy = Math.abs(ball.pos.y - player1.getcenter().y);
-	
-    if (dx < (ball.radius + player1.getHalfWidth()) && dy < (ball.radius + player1.getHalfHeight())) {
-		ball.speed.x *= -1;
-		if (name === "Player_1")
-			lastHit = name;
-		if (name === "Player_2")
-			lastHit = name;
-		if (name === "Player_3")
-			lastHit = name;
-		if (name === "Player_4")
-			lastHit = name;
+function playerCollision(ball, player, name) {
+    let dx = Math.abs(ball.pos.x - player.getcenter().x);
+    let dy = Math.abs(ball.pos.y - player.getcenter().y);
 
-        // Increase speed gradually, preserving the direction
+    if (dx < (ball.radius + player.getHalfWidth()) && dy < (ball.radius + player.getHalfHeight())) {
+        // Determine if the player is horizontal or vertical
+        const isHorizontal = player.getHalfWidth() > player.getHalfHeight();
+
+        if (isHorizontal) {
+            // Horizontal players (Player 1, Player 2)
+            ball.speed.y *= -1;
+
+            // Resolve overlap to prevent sticking
+            if (ball.pos.y < player.getcenter().y) {
+                ball.pos.y = player.getcenter().y - (player.getHalfHeight() + ball.radius);
+            } else {
+                ball.pos.y = player.getcenter().y + (player.getHalfHeight() + ball.radius);
+            }
+
+            // Adjust horizontal speed for deflection
+            const hitPosition = (ball.pos.x - player.getcenter().x) / player.getHalfWidth();
+            ball.speed.x += hitPosition * 1.5; // Adjust for deflection
+        } else {
+            // Vertical players (Player 3, Player 4)
+            ball.speed.x *= -1;
+
+            // Resolve overlap to prevent sticking
+            if (ball.pos.x < player.getcenter().x) {
+                ball.pos.x = player.getcenter().x - (player.getHalfWidth() + ball.radius);
+            } else {
+                ball.pos.x = player.getcenter().x + (player.getHalfWidth() + ball.radius);
+            }
+
+            // Adjust vertical speed for deflection
+            const hitPosition = (ball.pos.y - player.getcenter().y) / player.getHalfHeight();
+            ball.speed.y += hitPosition * 1.5; // Adjust for deflection
+        }
+        // Update lastHit to track who hit the ball
+        if (name) lastHit = name;
+		// Increase ball speed
         if (Math.abs(ball.speed.x) < 15) {
             ball.speed.x += (ball.speed.x > 0 ? 0.5 : -0.5);
         }
         if (Math.abs(ball.speed.y) < 15) {
             ball.speed.y += (ball.speed.y > 0 ? 0.5 : -0.5);
         }
-
-        // Optional: Add a slight vertical deflection based on where the ball hits the paddle
-        const hitPosition = (ball.pos.y - player1.getcenter().y) / player1.getHalfHeight();
-        ball.speed.y += hitPosition * 2; // Adjust 2 as needed for effect
     }
 }
+
+
 
 function drawfield()
 {
@@ -528,58 +540,60 @@ function drawfield()
 }
 
 function drawfield_multiplayer() {
-    ctx.strokeStyle = 'brown';
+    ctx.strokeStyle = 'red';
 
     // player 1
     ctx.beginPath();
     ctx.lineWidth = 20;
     ctx.moveTo(0, 0);
-    ctx.lineTo(0, canvas.height / 3); // Left vertical bar
+    ctx.lineTo(0, canvas.height / 4); // Left vertical bar
     ctx.stroke();
 
     ctx.beginPath();
     ctx.lineWidth = 20;
     ctx.moveTo(0, canvas.height);
-    ctx.lineTo(0, canvas.height - canvas.height / 3); // Left vertical bar
+    ctx.lineTo(0, canvas.height - (canvas.height / 4)); // Left vertical bar
     ctx.stroke();
 
     // Player 2
     ctx.beginPath();
     ctx.lineWidth = 20;
     ctx.moveTo(canvas.width, 0);
-    ctx.lineTo(canvas.width, canvas.height / 3); // Right vertical bar
+    ctx.lineTo(canvas.width, (canvas.height / 4)); // Right vertical bar
     ctx.stroke();
 
     ctx.beginPath();
     ctx.lineWidth = 20;
     ctx.moveTo(canvas.width, canvas.height);
-    ctx.lineTo(canvas.width, canvas.height - canvas.height / 3); // Right vertical bar
+    ctx.lineTo(canvas.width, (canvas.height - canvas.height / 4)); // Right vertical bar
     ctx.stroke();
 
-	// Player 3
+	// Player 3 left
 	ctx.beginPath();
 	ctx.lineWidth = 20;
 	ctx.moveTo(0, 0);
-	ctx.lineTo(canvas.width / 3, 0); // Top horizontal bar
+	ctx.lineTo(canvas.width / 4, 0); // Top horizontal bar
 	ctx.stroke();
 
-	ctx.beginPath();
-	ctx.lineWidth = 20;
-	ctx.moveTo(0, canvas.height);
-	ctx.lineTo(canvas.width / 3, canvas.height); // Bottom horizontal bar
-	ctx.stroke();
-
-	// Player 4
+	// right
 	ctx.beginPath();
 	ctx.lineWidth = 20;
 	ctx.moveTo(canvas.width, 0);
-	ctx.lineTo(canvas.width - canvas.width / 3, 0); // Top horizontal bar
+	ctx.lineTo(canvas.width - canvas.width / 4, 0); // Top horizontal bar
 	ctx.stroke();
 
+	// player 4 left
+	ctx.beginPath();
+	ctx.lineWidth = 20;
+	ctx.moveTo(0, canvas.height);
+	ctx.lineTo(canvas.width / 4, canvas.height); // Bottom horizontal bar
+	ctx.stroke();
+
+	// right
 	ctx.beginPath();
 	ctx.lineWidth = 20;
 	ctx.moveTo(canvas.width, canvas.height);
-	ctx.lineTo(canvas.width - canvas.width / 3, canvas.height); // Bottom horizontal bar
+	ctx.lineTo(canvas.width - canvas.width / 4, canvas.height); // Bottom horizontal bar
 	ctx.stroke();
 
 	// Middle line
@@ -593,35 +607,14 @@ function drawfield_multiplayer() {
 	ctx.setLineDash([]);
 }
 
-// function setupPlayers(isMultiplayer)
-// {
-//     let player1, player2, player3 = null, player4 = null;
-
-//     // Player 1 and 2 positions (always active)
-// 	console.log(isMultiplayer);
-//     player1 = new Player(vector((canvas.width / 20), startY), playerWidth, playerHeight, 15);
-//     player2 = new Player(vector(canvas.width - (canvas.width / 20) - playerWidth, startY), playerWidth, playerHeight, 15);
-
-//     if (isMultiplayer)
-// 	{
-//         player1.pos = vector(canvas.width / 20, canvas.height / 2 - playerHeight / 2); // Center vertically
-//         player2.pos = vector(canvas.width - (canvas.width / 20) - playerWidth, canvas.height / 2 - playerHeight / 2); // Center vertically
-//         player3 = new Player(vector(canvas.width / 2 - playerHeight / 2, 0), playerHeight, playerWidth, 15); // Top center
-//         player4 = new Player(vector(canvas.width / 2 - playerHeight / 2, canvas.height - playerWidth), playerHeight, playerWidth, 15); // Bottom center
-//     }
-
-//     return { player1, player2, player3, player4 };
-// }
-
 let ball = new Ball(vector(startX, BstartY), ballRadius, vector(5, 5));
-// const { player1, player2, player3, player4 } = setupPlayers(multiplayer);
 let player1 = new Player(vector((canvas.width / 20 ), startY), playerWidth, playerHeight, 15);
 let player2 = new Player(vector(canvas.width - (canvas.width / 20 ) - playerWidth, startY), playerWidth, playerHeight, 15);
 
 let player_1 = new Player(vector(20, canvas.height / 2 - playerHeight / 2), playerWidth, playerHeight, 15);
 let player_2 = new Player(vector(canvas.width- 20 - playerWidth, canvas.height / 2 - playerHeight / 2), playerWidth, playerHeight, 15);
 let player3 = new Player(vector(canvas.width / 2 - playerHeight / 2, 20), playerHeight, playerWidth, 15);
-let player4 = new Player(vector(canvas.width / 2- 20 - playerHeight / 2, canvas.height - playerWidth), playerHeight, playerWidth, 15);
+let player4 = new Player(vector(canvas.width / 2- 20 - playerHeight / 2, canvas.height - playerWidth - 20), playerHeight, playerWidth, 15);
 
 
 function update()

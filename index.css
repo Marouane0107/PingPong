@@ -140,7 +140,7 @@ body {
 
 /* Game Container */
 #gameContainer {
-	display: none; /* Hidden by default */
+	display: none;
 	flex-direction: column;
 	width: 800px;
 	height: 600px;
@@ -148,7 +148,7 @@ body {
 	background-color: #f9f9f9;
 }
 
-/* Top Frame for Names and Scores */
+
 #topFrame {
 	display: flex;
 	justify-content: space-between;
